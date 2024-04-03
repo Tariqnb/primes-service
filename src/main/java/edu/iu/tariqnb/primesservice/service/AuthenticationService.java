@@ -1,6 +1,8 @@
 package edu.iu.tariqnb.primesservice.service;
 
 import edu.iu.tariqnb.primesservice.model.Customer;
+import edu.iu.tariqnb.primesservice.repository.AuthenticationDBRepository;
+import edu.iu.tariqnb.primesservice.repository.AuthenticationRepository;
 import edu.iu.tariqnb.primesservice.repository.IAuthenticationRepository;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,18 +10,20 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-@Repository
+@Service
 public class AuthenticationService
         implements IAuthenticationService, UserDetailsService {
-    IAuthenticationRepository authenticationRepository;
-    public AuthenticationService(IAuthenticationRepository authenticationRepository){
+    AuthenticationDBRepository authenticationRepository;
+    public AuthenticationService(
+            AuthenticationDBRepository authenticationRepository){
         this.authenticationRepository=authenticationRepository;
     }
     @Override
-    public boolean register(Customer customer) throws IOException{
+    public Customer register(Customer customer) throws IOException{
         BCryptPasswordEncoder bc = new BCryptPasswordEncoder();
         String passwordEncoded = bc.encode(customer.getPassword());
         customer.setPassword(passwordEncoded);
@@ -42,7 +46,7 @@ public class AuthenticationService
                     .withUsername(username)
                     .password(customer.getPassword())
                     .build();
-        } catch (IOException e){
+        } catch (Exception e){
             throw new RuntimeException(e);
         }
     }
